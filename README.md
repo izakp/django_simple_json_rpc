@@ -31,13 +31,13 @@ Put this in your application's views.py:
 	from django.views.decorators.csrf import csrf_exempt
 	from prefs.dash.views import json_rpc_controller
 
-	url(r'^rpc/$', csrf_exempt(json_rpc_controller), name='dash.json_rpc_controller'),
+	url(r'^json-rpc/$', csrf_exempt(json_rpc_controller),
 
 
 ### Write your view functions and add them to the controller as named routes
 
 
-	@json_rpc_controller.add_route(required_parameters=REQUIRED_PARAMETERS)
+	@json_rpc_controller.add_route()
 	def get_user_id(request, user_id=None, auth_key=None):
 		return {
 			'user_id': user_id,
@@ -45,6 +45,15 @@ Put this in your application's views.py:
 		}
 
 Routes should return dictionaries. If a route returns an object, foo it is wrapped in {"data": foo} before a JSON response is rendered.
+
+
+## Logging
+
+To enable logging, put this in your settings.py:
+
+	DJANGO_JSON_RPC_DEBUG = True
+
+Make sure your application has a default logger available.  Logging fails silently.
 
 ## Evaluating Named Parameters
 
@@ -63,17 +72,43 @@ Type checking and other requirements can be enforced on named parameters.  For e
 	}
 
 	@json_rpc_controller.add_route(required_parameters=REQUIRED_PARAMETERS)
-	def get_user_id(request, user_id=None, auth_key=None):
+	def get_user_id(request, user_id, auth_key):
 		return {
 			'user_id': user_id,
 			'auth_key': auth_key,
 		}
 
+If you pass a requirements dictionary, each parameter to be evaluated must at least contatin {'type': foo} where foo is the string representation of the JSON type required.
 
-## Logging
+Requirements dictionaries can additionally contain the following keys specifying the following types of values:
 
-To enable logging, put this in your settings.py:
+	{
+		'type': 'unicode',
+		'length': int,
+		'allowed_characters': re._pattern_type,
+	}
 
-	DJANGO_JSON_RPC_DEBUG = True
+	{
+		'type': 'int',
+		'min': int,
+		'max': int,
+	}
 
-Make sure your application has a default logger available.  Logging fails silently.
+	{
+		'type': 'bool',
+	},
+
+	{
+		'type': 'null',
+	},
+
+	{
+		'type': 'dict',
+		'allowed_keys': list,
+	},
+
+	{
+		'type': 'array',
+		'length': int,
+	},
+
