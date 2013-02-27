@@ -19,11 +19,11 @@ import inspect
 from django_json_rpc.responses import *
 
 from django.http import HttpResponseNotAllowed
-from django.conf import settings
 
 LOG = False
 
 try:
+	from django.conf import settings
 	if settings.DJANGO_JSON_RPC_DEBUG:
 		import logging
 		logger = logging.getLogger(__name__)
@@ -191,7 +191,6 @@ class JsonRpcController(object):
 
 		# For positional parameters
 		if isinstance(parameters, list):
-
 			# check that we have the right number of parameters before calling the function
 			if len(parameters) != function_arg_length - 1: # ignore request as the first argument
 				self.log('Invalid number of positional parameters for method %s' % method)
@@ -206,23 +205,22 @@ class JsonRpcController(object):
 				return JsonRpcInternalError(request_id)
 
 		# For named parameters
-		if isinstance(parameters, dict):
-			# if required named parameters are provided, verify them
-			if required_parameters:
-				if not self.check_named_parameters(parameters, required_parameters):
-					self.log('Invalid named parameters for method %s' % method)
-					return JsonRpcInvalidParameters(request_id)
-
-			# check that we have the right number of parameters before calling the function
-			print function_arg_length
-			if len(parameters.items()) != function_arg_length - 1: # ignore request as the first argument
-				self.log('Invalid number of named parameters for method %s' % method)
+		# if required named parameters are provided, verify them
+		if required_parameters:
+			if not self.check_named_parameters(parameters, required_parameters):
+				self.log('Invalid named parameters for method %s' % method)
 				return JsonRpcInvalidParameters(request_id)
 
-			# call route function with named parameters
-			try:
-				result = function(request, **parameters)
-				return self.render_response(request, result, request_id)
-			except Exception, e:
-				self.log('Internal Error calling %s : %s' % (method, e))
-				return JsonRpcInternalError(request_id)
+		# check that we have the right number of parameters before calling the function
+
+		if len(parameters.items()) != function_arg_length - 1: # ignore request as the first argument
+			self.log('Invalid number of named parameters for method %s' % method)
+			return JsonRpcInvalidParameters(request_id)
+
+		# call route function with named parameters
+		try:
+			result = function(request, **parameters)
+			return self.render_response(request, result, request_id)
+		except Exception, e:
+			self.log('Internal Error calling %s : %s' % (method, e))
+			return JsonRpcInternalError(request_id)
