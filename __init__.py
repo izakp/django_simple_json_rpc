@@ -78,7 +78,7 @@ class JsonRpcController(object):
 				logger.critical(message)
 
 	# this is a decorator, so we can easily expose any function
-	def add_method(self, required_parameters=None):
+	def add_route(self, required_parameters=None):
 		# put function into the map, along with its required parameters and number of arguments
 		def wrap(function):
 			self.routes[function.__name__] = (function, required_parameters, len(inspect.getargspec(function).args))
