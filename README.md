@@ -17,7 +17,7 @@ Features:
 Put this in your application's views.py:
 
 
-	from prefs.django_json_rpc import JsonRpcController
+	from simple_json_rpc import JsonRpcController
 	json_rpc_controller = JsonRpcController()
 
 

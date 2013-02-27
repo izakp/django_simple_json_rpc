@@ -16,8 +16,8 @@ import json
 import re
 import inspect
 
-from django_json_rpc.responses import *
-from django_json_rpc.exceptions import *
+from simple_json_rpc.responses import *
+from simple_json_rpc.exceptions import *
 
 from django.http import HttpResponseNotAllowed
 
