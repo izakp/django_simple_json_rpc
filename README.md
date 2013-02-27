@@ -26,6 +26,13 @@ Put this in your application's views.py:
 
 	url(r'^json-rpc/$', 'views.json_rpc_controller'),
 
+#### Note: to exempt requests from Django's CSRF protection middleware, you must explicitly import the controller into urls.py and pass it to csrf_exempt:
+
+	from django.views.decorators.csrf import csrf_exempt
+	from prefs.dash.views import json_rpc_controller
+
+	url(r'^rpc/$', csrf_exempt(json_rpc_controller), name='dash.json_rpc_controller'),
+
 
 ### Write your view functions and add them to the controller as named routes
 
