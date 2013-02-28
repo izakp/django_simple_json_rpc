@@ -1,4 +1,4 @@
-def render_result(self, data):
+def render_result(data):
 	if not isinstance(data, dict):
 		result = {}
 		result['data'] = result
@@ -6,14 +6,14 @@ def render_result(self, data):
 		result = data
 	return result
 
-def render_exception_to_result(self, e):
+def render_exception_to_result(e):
 	result = {
 		'code': e.code,
 		'message': e.message,
 	}
 	return result
 
-def wrap_batch_response(self, result, request_id, error):
+def wrap_batch_response(result, request_id, error):
 	content = {
 		'jsonrpc': "2.0",
 		'id': request_id,
