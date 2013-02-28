@@ -2,10 +2,6 @@ class JsonRpcException(Exception):
 	code = 0
 	message = None
 
-class JsonRpcParseException(JsonRpcException):
-	code = -32700
-	message = 'Invalid JSON was received by the server.'
-
 class JsonRpcInvalidRequest(JsonRpcException):
 	code = -32600
 	message = 'The JSON sent is not a valid Request object.'
