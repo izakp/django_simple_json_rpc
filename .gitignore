@@ -6,3 +6,4 @@
 .DS_Store?
 *.test
 *.example
+models.py
