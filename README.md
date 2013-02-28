@@ -112,6 +112,14 @@ Requirements dictionaries can additionally contain the following keys specifying
 		'length': int,
 	},
 
+### Testing:
+
+Tests depend on Django's testing framework (for now).
+
+To run tests, create an empty models.py in the django_simple_rpc directory and from your project directory run:
+
+	./manage.py test django_simple_json_rpc
+
 ### TO DO:
 
 - notifications to return no response
