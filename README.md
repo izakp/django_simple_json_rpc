@@ -1,8 +1,7 @@
-django-simple-json-rpc
+Django Simple JSON-RPC
 ======================
 
-Simple Django JSON-RPC.  Implements JSON-RPC 2.0 Specification:
-http://www.jsonrpc.org/specification
+Simple Django JSON-RPC.  Implements JSON-RPC 2.0 Specification: http://www.jsonrpc.org/specification
 
 Features:
 - simple routing
@@ -53,7 +52,7 @@ To enable logging, put this in your settings.py:
 
 	DJANGO_JSON_RPC_DEBUG = True
 
-Make sure your application has a default logger available.  Logging fails silently.
+Make sure your application has a default logger available, but if not, logging fails silently.
 
 ## Evaluating Named Parameters
 
@@ -126,4 +125,3 @@ From your project directory run:
 
 - notifications to return no response
 
-- full tests
