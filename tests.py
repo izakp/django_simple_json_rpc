@@ -58,6 +58,30 @@ class test_responses(unittest.TestCase):
 
 		cls.factory = RequestFactory()
 
+	def test_parse_error(self):
+		payload = '{"jsonrpc": "2.0", "method": "foobar, "params": "bar", "baz]'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+		# parameters are validated before calling route so we can now expect an invalid parameters error
+		self.assertEqual('{"jsonrpc": "2.0", "id": null, "error": {"message": "Invalid JSON was received by the server.", "code": -32700}}', res.content)
+
+	def test_invalid_request_method_type(self):
+		payload = '{"jsonrpc": "2.0", "method": 1, "params": "bar"}'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+		# parameters are validated before calling route so we can now expect an invalid parameters error
+		self.assertEqual('{"jsonrpc": "2.0", "id": null, "error": {"message": "The JSON sent is not a valid Request object.", "code": -32600}}', res.content)
+
+	def test_invalid_request_params_type(self):
+		payload = '{"jsonrpc": "2.0", "method": "subtract", "params": 1}'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+		# parameters are validated before calling route so we can now expect an invalid parameters error
+		self.assertEqual('{"jsonrpc": "2.0", "id": null, "error": {"message": "The JSON sent is not a valid Request object.", "code": -32600}}', res.content)
+
 	def test_positional_params(self):
 		payload = '{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}'
 		req = self.factory.request(payload)
@@ -65,18 +89,12 @@ class test_responses(unittest.TestCase):
 
 		self.assertEqual('{"jsonrpc": "2.0", "result": 19, "id": 1}', res.content)
 
-		content = json.loads(res.content)
-		self.assertEqual(19, content["result"])
-
 	def test_named_params(self):
 		payload = '{"jsonrpc": "2.0", "method": "subtract_named", "params": {"subtrahend": 23, "minuend": 42}, "id": 3}'
 		req = self.factory.request(payload)
 		res = self.json_rpc_controller(req)
 
 		self.assertEqual('{"jsonrpc": "2.0", "result": 19, "id": 3}', res.content)
-
-		content = json.loads(res.content)
-		self.assertEqual(19, content["result"])
 
 	def test_invalid_positional_params(self):
 		payload = '{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23, 3], "id": 3}'
@@ -102,9 +120,6 @@ class test_responses(unittest.TestCase):
 
 		self.assertEqual('{"jsonrpc": "2.0", "result": 19, "id": 3}', res.content)
 
-		content = json.loads(res.content)
-		self.assertEqual(19, content["result"])
-
 	def test_invalid_named_params_required(self):
 		payload = '{"jsonrpc": "2.0", "method": "subtract_named_required", "params": {"subtrahend": 23, "minuendzzzz": 42}, "id": 3}'
 		req = self.factory.request(payload)
@@ -121,9 +136,36 @@ class test_responses(unittest.TestCase):
 		# parameters are validated before calling route so we can now expect an invalid parameters error
 		self.assertEqual('{"jsonrpc": "2.0", "id": 3, "error": {"message": "The method does not exist / is not available.", "code": -32601}}', res.content)
 
+	def test_batch_empty(self):
+		payload = '[]'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
 
 
+		self.assertEqual('{"jsonrpc": "2.0", "id": null, "error": {"message": "The JSON sent is not a valid Request object.", "code": -32600}}', res.content)
 
+	def test_batch_invalid(self):
+		payload = '[1,2,3]'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+
+		self.assertEqual('[{"jsonrpc": "2.0", "id": null, "error": {"message": "The JSON sent is not a valid Request object.", "code": -32600}}, {"jsonrpc": "2.0", "id": null, "error": {"message": "The JSON sent is not a valid Request object.", "code": -32600}}, {"jsonrpc": "2.0", "id": null, "error": {"message": "The JSON sent is not a valid Request object.", "code": -32600}}]', res.content)
+
+	def test_batch_call(self):
+		payload = '''
+		[
+			{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1},
+			{"jsonrpc": "2.0", "method": "subtract_named", "params": {"subtrahend": 23, "minuend": 42}, "id": 3},
+			{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23, 3], "id": 4}
+		]
+		'''
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+		self.assertEqual('[{"jsonrpc": "2.0", "id": 1, "result": 19}, {"jsonrpc": "2.0", "id": 3, "result": 19}, {"jsonrpc": "2.0", "id": 4, "error": {"message": "Invalid method parameter(s).", "code": -32602}}]', res.content)
+
+		
 
 
 
