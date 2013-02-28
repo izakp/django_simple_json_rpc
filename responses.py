@@ -42,7 +42,7 @@ class JsonRpcParseError(JsonRpcErrorResponse):
 
 class JsonRpcInvalidRequestError(JsonRpcErrorResponse):
 	def __init__(self):
-		super(JsonRpcParseError, self).__init__(
+		super(JsonRpcInvalidRequestError, self).__init__(
 			error = {
 				'code': -32600,
 				'message': 'The JSON sent is not a valid Request object.',
