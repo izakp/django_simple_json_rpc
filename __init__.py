@@ -16,9 +16,9 @@ import json
 import re
 import inspect
 
-from django_simple_json_rpc.responses import *
-from django_simple_json_rpc.exceptions import *
-from django_simple_json_rpc.helpers import *
+from responses import *
+from exceptions import *
+from helpers import *
 
 from django.http import HttpResponseNotAllowed
 
@@ -189,7 +189,7 @@ class JsonRpcController(object):
 		# try to get the most important keys
 		try:
 			method = request_dict['method']
-			parameters = request_dict['parameters']
+			parameters = request_dict['params']
 		except KeyError:
 			self.log('The JSON sent is not a valid Request object')
 			raise JsonRpcInvalidRequest()
