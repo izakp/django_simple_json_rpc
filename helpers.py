@@ -1,10 +1,10 @@
 def render_result(data):
-	if not isinstance(data, dict):
-		result = {}
-		result['data'] = result
-	else:
-		result = data
-	return result
+	#if not isinstance(data, dict):
+	#	result = {}
+	#	result['data'] = result
+	#else:
+	#	result = data
+	return data
 
 def render_exception_to_result(e):
 	result = {

@@ -37,17 +37,17 @@ class test_responses(unittest.TestCase):
 
         @cls.json_rpc_controller.add_route()
         def subtract(request, x, y):
-            return {
-                'data': x - y,
-            }
+            return x - y
 
         cls.factory = RequestFactory()
 
-    def test_json(self):
+    def test_positional_params(self):
         payload = '{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}'
         req = self.factory.request(payload)
         res = self.json_rpc_controller(req)
+
+        self.assertEqual('{"jsonrpc": "2.0", "result": 19, "id": 1}', res.content)
+
         content = json.loads(res.content)
-        print res
-        self.assertEqual(19, content["result"]["data"])
+        self.assertEqual(19, content["result"])
 

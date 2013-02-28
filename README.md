@@ -116,7 +116,9 @@ Requirements dictionaries can additionally contain the following keys specifying
 
 Tests depend on Django's testing framework (for now).
 
-To run tests, create an empty models.py in the django_simple_rpc directory and from your project directory run:
+Put 'django_simple_rpc' in settings.INSTALLED_APPS and create an empty models.py in the django_simple_rpc directory.
+
+From your project directory run:
 
 	./manage.py test django_simple_json_rpc
 
@@ -124,4 +126,4 @@ To run tests, create an empty models.py in the django_simple_rpc directory and f
 
 - notifications to return no response
 
-- unit tests
+- full tests
