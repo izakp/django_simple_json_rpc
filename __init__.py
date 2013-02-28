@@ -99,7 +99,8 @@ class JsonRpcController(object): # this object holds the following mappings func
 
 					(result, request_id, error) = self.process_request(request, request_dict)
 
-					response.append(wrap_batch_response(result, request_id, error))
+					if request_id or error:
+						response.append(wrap_batch_response(result, request_id, error))
 
 				return JsonResponse(content=response)
 

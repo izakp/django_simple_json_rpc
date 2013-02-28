@@ -151,6 +151,7 @@ class test_responses(unittest.TestCase):
 		payload = '''
 		[
 			{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1},
+			{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": null},
 			{"jsonrpc": "2.0", "method": "subtract_named", "params": {"subtrahend": 23, "minuend": 42}, "id": 3},
 			{"jsonrpc": "2.0", "method": "subtract", "params": [42, 23, 3], "id": 4}
 		]
