@@ -162,6 +162,10 @@ class JsonRpcController(object):
 		try:
 			method = request_dict['method']
 			parameters = request_dict['params']
+
+			if not isinstance(method, unicode) or not isinstance(parameters, list) and not isinstance(parameters, dict): #chaining can be a nice thing :)
+				raise JsonRpcInvalidRequest()
+
 		except KeyError:
 			self.log('The JSON sent is not a valid Request object')
 			raise JsonRpcInvalidRequest()
