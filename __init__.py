@@ -32,8 +32,7 @@ except:
 	pass
 
 
-class JsonRpcController(object):
-	# this object holds the following mappings function_name -> (function_callable, required_paramters_list, function_arg_length)
+class JsonRpcController(object): # this object holds the following mappings function_name -> (function_callable, required_paramters_list, function_arg_length)
 
 	def __init__(self):
 		self.routes = {}
@@ -51,10 +50,10 @@ class JsonRpcController(object):
 			if level == 'critical':
 				logger.critical(message)
 
-	# this is a decorator, so we can easily expose any function
-	def add_route(self, required_parameters=None):
-		# put function into the map, along with its required parameters and number of arguments
-		def wrap(function):
+
+	def add_route(self, required_parameters=None): # this is a decorator, so we can easily expose any function
+
+		def wrap(function): # put function into the map, along with its required parameters and number of arguments
 			self.routes[function.__name__] = (function, required_parameters, len(inspect.getargspec(function).args))
 		return wrap
 
@@ -91,7 +90,6 @@ class JsonRpcController(object):
 
 		try:
 			# process batch requests
-
 			if isinstance(request_struct, list):
 
 				assert len(request_struct) > 0
@@ -106,12 +104,11 @@ class JsonRpcController(object):
 				return JsonResponse(content=response)
 
 			# process single requests
-
 			assert isinstance(request_struct, dict)
 
 			(result, request_id, error) = self.process_request(request, request_struct)
 
-			# TODO: notifications should return nothing
+			# TODO: notifications should return nothing but Django gets angry if we return no HTTP response.
 
 			if not error:
 				return JsonRpcResponse(result=result, request_id=request_id)
@@ -125,26 +122,24 @@ class JsonRpcController(object):
 	def process_request(self, request, request_dict):
 
 		'''
-		we can be sure we have a valid structure now.  Let's proceed and catch exceptions here
-
 		-- parameters
 			- request (request object)
 			- request_dict (request dictionary to process)
 
 		-- returns
-			tuple (result, request_id)
+			tuple (result, request_id, error)
 		'''
 
 		error = False
 
-		#dispatch the request
+		# Dispatch the request and catch exceptions
 		try:
 			result = self.dispatch_request(request, request_dict)
 		except JsonRpcException, e:
 			result = render_exception_to_result(e)
 			error = True
 
-		# get the request ID if available
+		# Get the request ID if available
 		try:
 			request_id = request_dict.get('id', None)
 		except:
@@ -155,10 +150,19 @@ class JsonRpcController(object):
 
 	def dispatch_request(self, request, request_dict):
 
+		'''
+		-- parameters
+			- request (request object)
+			- request_dict (request dictionary to process)
+
+		-- returns
+			result (type varies, returned from called function)
+		'''
+
 		if not isinstance(request_dict, dict):
 			raise JsonRpcInvalidRequest()
 
-		# try to get the most important keys
+		# Try to get the most important keys
 		try:
 			method = request_dict['method']
 			parameters = request_dict['params']
@@ -170,7 +174,7 @@ class JsonRpcController(object):
 			self.log('The JSON sent is not a valid Request object')
 			raise JsonRpcInvalidRequest()
 
-		# get function from route map
+		# Get the function from route map
 		try:
 			(function, required_parameters, function_arg_length) = self.routes[method]
 		except KeyError:
@@ -181,34 +185,29 @@ class JsonRpcController(object):
 			self.log('Invalid parameter struct calling method %s' % method)
 			raise JsonRpcInvalidParameters()
 
-		# For positional parameters
+		# For positional parameters we have to unpack the parameters into a list ...
 		if isinstance(parameters, list):
-			# check that we have the right number of parameters before calling the function
 			if len(parameters) != function_arg_length - 1: # ignore request as the first argument
 				self.log('Invalid number of positional parameters for method %s' % method)
 				raise JsonRpcInvalidParameters()
 
-			# call route function with positional parameters
 			try:
-				result = function(request, *parameters)
+				result = function(request, *parameters) # Finally the magic happens and we call the wrapped function!
 				return result
 			except Exception, e:
 				self.log('Internal Error calling %s : %s' % (method, e))
 				raise JsonRpcInternalError()
 
-		# For named parameters if required named parameters are provided, verify them
+		# ... while for named parameters we need to validate then unpack into a dictionary
 		if required_parameters:
 			if not self.check_named_parameters(parameters, required_parameters):
 				self.log('Invalid named parameters for method %s' % method)
 				raise JsonRpcInvalidParameters()
 
-		# check that we have the right number of parameters before calling the function
-
-		if len(parameters.items()) != function_arg_length - 1: # ignore request as the first argument
+		if len(parameters.items()) != function_arg_length - 1:
 			self.log('Invalid number of named parameters for method %s' % method)
 			raise JsonRpcInvalidParameters()
 
-		# call route function with named parameters
 		try:
 			result = function(request, **parameters)
 			return result
