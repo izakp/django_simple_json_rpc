@@ -1,10 +1,31 @@
-def render_result(data):
-	#if not isinstance(data, dict):
-	#	result = {}
-	#	result['data'] = result
-	#else:
-	#	result = data
-	return data
+import re
+
+VALIDATORS = {
+	'unicode': {
+		'type': unicode,
+		'length': int,
+		'allowed_characters': re._pattern_type,
+	},
+	'int': {
+		'type': int,
+		'min': int,
+		'max': int,
+	},
+	'bool': {
+		'type': bool,
+	},
+	'null': {
+		'type': None,
+	},
+	'dict': {
+		'type': dict,
+		'allowed_keys': list,
+	},
+	'array': {
+		'type': list,
+		'length': int,
+	},
+}
 
 def render_exception_to_result(e):
 	result = {

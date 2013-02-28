@@ -11,9 +11,7 @@ Features:
 
 '''
 
-import datetime
 import json
-import re
 import inspect
 
 from responses import *
@@ -33,32 +31,6 @@ try:
 except:
 	pass
 
-VALIDATORS = {
-	'unicode': {
-		'type': unicode,
-		'length': int,
-		'allowed_characters': re._pattern_type,
-	},
-	'int': {
-		'type': int,
-		'min': int,
-		'max': int,
-	},
-	'bool': {
-		'type': bool,
-	},
-	'null': {
-		'type': None,
-	},
-	'dict': {
-		'type': dict,
-		'allowed_keys': list,
-	},
-	'array': {
-		'type': list,
-		'length': int,
-	},
-}
 
 class JsonRpcController(object):
 	# this object holds the following mappings function_name -> (function_callable, required_paramters_list, function_arg_length)
@@ -215,7 +187,7 @@ class JsonRpcController(object):
 			# call route function with positional parameters
 			try:
 				result = function(request, *parameters)
-				return render_result(result)
+				return result
 			except Exception, e:
 				self.log('Internal Error calling %s : %s' % (method, e))
 				raise JsonRpcInternalError()
@@ -235,7 +207,7 @@ class JsonRpcController(object):
 		# call route function with named parameters
 		try:
 			result = function(request, **parameters)
-			return render_result(result)
+			return result
 		except Exception, e:
 			self.log('Internal Error calling %s : %s' % (method, e))
 			raise JsonRpcInternalError()
