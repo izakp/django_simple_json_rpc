@@ -111,9 +111,28 @@ Requirements dictionaries can additionally contain the following keys specifying
 		'length': int,
 	},
 
+
+If your view function uses named parameters, and there are no requirements provided, requests dispatched to that function are likely to cause errors when called.  (See tests --> test_invalid_named_params).
+
+### Exception Handling:
+
+Views that raise uncaught exceptions will by default raise a JsonRpcInternalError and return an equivalent of 500 response:
+
+	{"jsonrpc": "2.0", "id": null, "error": {"message": "Internal JSON-RPC error.", "code": -32603}}
+
+Alternatively, you can raise JsonRpcCustomError into your view functions and return a custom error.  For example a view function,
+
+	json_rpc_controller.add_route()
+	def custom_exception(request):
+		raise JsonRpcCustomError(code=123, message='abc')
+
+Will return:
+
+	{"jsonrpc": "2.0", "id": null, "error": {"message": "abc", "code": 123}}
+
 ### Testing:
 
-Tests depend on Django's testing framework (for now).
+Tests depend on Django's testing framework.
 
 Put 'django_simple_rpc' in settings.INSTALLED_APPS and create an empty models.py in the django_simple_rpc directory.
 
@@ -123,5 +142,5 @@ From your project directory run:
 
 ### TO DO:
 
-- notifications to return no response
+- Notifications return '{"jsonrpc": "2.0", "result": null}' (As per specification, notifications should return no response.)
 
