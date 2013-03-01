@@ -2,6 +2,7 @@ import unittest
 import json
 
 from django_simple_json_rpc import JsonRpcController
+from django_simple_json_rpc.exceptions import JsonRpcCustomError
 
 #http://djangosnippets.org/snippets/963/
 from django.test import Client
@@ -55,6 +56,14 @@ class test_responses(unittest.TestCase):
 		@cls.json_rpc_controller.add_route(required_parameters=SUBTRACT_METHOD_PARAMETERS)
 		def subtract_named_required(request, subtrahend, minuend):
 			return minuend - subtrahend
+
+		@cls.json_rpc_controller.add_route()
+		def notification(request):
+			return None
+
+		@cls.json_rpc_controller.add_route()
+		def custom_exception(request):
+			raise JsonRpcCustomError(code=123, message='abc')
 
 		cls.factory = RequestFactory()
 
@@ -160,3 +169,31 @@ class test_responses(unittest.TestCase):
 		res = self.json_rpc_controller(req)
 
 		self.assertEqual('[{"jsonrpc": "2.0", "id": 1, "result": 19}, {"jsonrpc": "2.0", "id": 3, "result": 19}, {"jsonrpc": "2.0", "id": 4, "error": {"message": "Invalid method parameter(s).", "code": -32602}}]', res.content)
+
+	def test_empty_params_list(self):
+		payload = '{"jsonrpc": "2.0", "method": "notification", "params": [], "id": 5}'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+		self.assertEqual('{"jsonrpc": "2.0", "result": null, "id": 5}', res.content)
+
+	def test_empty_params_dict(self):
+		payload = '{"jsonrpc": "2.0", "method": "notification", "params": {}}'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+		self.assertEqual('{"jsonrpc": "2.0", "result": null}', res.content)
+
+	def test_notification(self):
+		payload = '{"jsonrpc": "2.0", "method": "notification", "params": {}}'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+		self.assertEqual('{"jsonrpc": "2.0", "result": null}', res.content)
+
+	def test_custom_exception(self):
+		payload = '{"jsonrpc": "2.0", "method": "custom_exception", "params": {}, "id": 1}'
+		req = self.factory.request(payload)
+		res = self.json_rpc_controller(req)
+
+		self.assertEqual('{"jsonrpc": "2.0", "id": 1, "error": {"message": "abc", "code": 123}}', res.content)
