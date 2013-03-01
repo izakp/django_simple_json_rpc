@@ -197,7 +197,11 @@ class JsonRpcController(object): # this object holds the following mappings func
 				return result
 			except Exception, e:
 				self.log('Internal Error calling %s : %s' % (method, e))
-				raise JsonRpcInternalError()
+				# propogate custom exceptions
+				if isinstance(e, JsonRpcCustomError):
+					raise
+				else:
+					raise JsonRpcInternalError()
 
 		# ... while for named parameters we need to validate then unpack into a dictionary
 		if required_parameters:
@@ -214,4 +218,8 @@ class JsonRpcController(object): # this object holds the following mappings func
 			return result
 		except Exception, e:
 			self.log('Internal Error calling %s : %s' % (method, e))
-			raise JsonRpcInternalError()
+			# propogate custom exceptions
+			if isinstance(e, JsonRpcCustomError):
+				raise
+			else:
+				raise JsonRpcInternalError()
