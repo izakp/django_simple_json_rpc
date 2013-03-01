@@ -13,12 +13,14 @@ class JsonResponse(HttpResponse):
 
 class JsonRpcResponse(JsonResponse):
 	def __init__(self, result, request_id=None):
+		content = {
+			'jsonrpc': "2.0",
+			'result': result,
+		}
+		if request_id != None:
+			content['id'] = request_id
 		super(JsonRpcResponse, self).__init__(
-			content = {
-				'jsonrpc': "2.0",
-				'result': result,
-				'id': request_id,
-			}
+			content = content
 		)
 
 class JsonRpcErrorResponse(JsonResponse):
