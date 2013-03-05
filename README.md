@@ -25,7 +25,7 @@ Put this in your application's views.py:
 
 	url(r'^json-rpc/$', 'views.json_rpc_controller'),
 
-#### Note: to exempt requests from Django's CSRF protection middleware, you must explicitly import the controller into urls.py and pass it to csrf_exempt:
+Note: to exempt requests from Django's CSRF protection middleware, you must explicitly import the controller into urls.py and pass it to csrf_exempt:
 
 	from django.views.decorators.csrf import csrf_exempt
 	from prefs.dash.views import json_rpc_controller
@@ -46,7 +46,7 @@ Put this in your application's views.py:
 Routes should return dictionaries. If a route returns an object, foo it is wrapped in {"data": foo} before a JSON response is rendered.
 
 
-## Logging
+### Logging
 
 To enable logging, put this in your settings.py:
 
@@ -54,7 +54,7 @@ To enable logging, put this in your settings.py:
 
 Make sure your application has a default logger available, but if not, logging fails silently.
 
-## Evaluating Named Parameters
+### Evaluating Named Parameters
 
 Type checking and other requirements can be enforced on named parameters.  For example, to require the parameters user_id as an alphanumeric character and auth_key as an integer, create a requirements dict and pass it to add_route as required_parameters.
 
